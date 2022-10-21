@@ -65,14 +65,16 @@ def main(folder: Path):
 
 
 if __name__ == '__main__':
-    try:
-        if sys.argv[1]:
-            folder_for_scan = Path(sys.argv[1])
-            print(f'Start in folder {folder_for_scan.resolve()}')
-            main(folder_for_scan.resolve())
-    except IndexError:
-            print(f'Cant start program because of {IndexError:}.')
-            print('Correct input -> python main.py "Folder for Start name"')
+    def start_scan():
+        try:
+            if sys.argv[1]:
+                folder_for_scan = Path(sys.argv[1])
+                print(f'Start in folder {folder_for_scan.resolve()}')
+                main(folder_for_scan.resolve())
+        except IndexError:
+                print(f'Cant start program because of {IndexError:}.')
+                print('Correct input -> python main.py "Folder for Start name"')
+    start_scan()
 
 
 # TODO: запускаємо:  python3 main.py `назва_папки_для_сортування`
