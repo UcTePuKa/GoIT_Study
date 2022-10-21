@@ -73,4 +73,6 @@ def main_func():
     print(f'Unknown files of types: {UNKNOWN}')
 
     print(FOLDERS[::-1])
-main_func()
+
+if __name__ == '__main__':
+    main_func()

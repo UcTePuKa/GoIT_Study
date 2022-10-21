@@ -76,7 +76,8 @@ def start_scan():
         print(f'Start in folder {folder_for_scan.resolve()}')
         main(folder_for_scan.resolve())
 
-start_scan()
+if __name__ == '__main__':
+    start_scan()
 
 
 # TODO: запускаємо:  python3 main.py `назва_папки_для_сортування`
