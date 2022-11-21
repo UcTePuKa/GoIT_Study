@@ -1,83 +1,62 @@
-import re
+contacts = {}
 
 
 def input_error(func):
     def inner(*args, **kwargs):
-        while True:
-            try:
-                func_res = func(*args, **kwargs)
-                if func_res == -1:
-                    break
-            except KeyError:
-                print('This contact doesnt exist, please try again.')
-            except ValueError as exception:
-                print('Wrong input. Please enter name "space" number')
-            except IndexError:
-                print('This contact cannot be added, it exists already')
-            except TypeError:
-                print('Unknown command or parametrs, please try again.')
+        try:
+            return func(*args, **kwargs)
+        except KeyError:
+            return 'This contact doesnt exist, please try again'
+        except ValueError as exception:
+            return exception.args[0]
+        except IndexError:
+            return 'This contact cannot be added, it exists already'
+        except TypeError:
+            return 'Unknown command or parametrs, please try again.'
     return inner
 
-@input_error
-def main():
-    command = input('Please input the command: ')
-    if re.findall(r'\.|exit|close|good.bye', command.lower()):
-        print(exit_func())
-        return -1
-    elif re.findall(r'^hello', command.lower()):
-        print(hello_func())
-    elif re.findall(r'^help', command.lower()):
-        print(help_func())
-    elif re.findall(r'^add', command.lower()):
-        print(add_func(command, contacts))
-    elif re.findall(r'^change', command.lower()):
-        print(change_func(command, contacts))
-    elif re.findall(r'^phone', command.lower()):
-        print(phone_func(command, contacts))
-    elif re.findall(r'^show all', command.lower()):
-        print(show_all_func(contacts))
-    else:
-        print(bad_command_func())
 
+@input_error
 def hello_func():
     return 'Hi! How can I help you?'
 
 
+@input_error
 def exit_func():
     return 'Good bye!'
 
 
-def add_func(command, contacts):
-    new_data = command.split(' ')
-    if new_data[1] in contacts:
-        raise IndexError
-    elif re.findall(r'[^a-zA-Z]', new_data[1]) or re.findall(r'[^0-9-()]', new_data[2]):
-        raise ValueError
-    else:
-        contacts[new_data[1]] = new_data[2]
-        return f'{new_data[1]}:{contacts[new_data[1]]}'
+@input_error
+def add_func(data):
+    name, phone = create_data(data)
+    if name in contacts:
+        raise ValueError('This contact already exist.')
+    contacts[name] = phone
+    return f'You added new contact: {name} with this phone {phone}.'
 
 
-def change_func(command, contacts):
-    new_data = command.split(' ')
-    print(new_data)
-    if new_data[1] not in contacts:
-        raise KeyError
-    elif re.findall(r'[^0-9-()]', new_data[2]):
-        raise ValueError
-    else:
-        contacts[new_data[1]] = new_data[2]
-        return f'{new_data[1]}:{contacts[new_data[1]]}'
+@input_error
+def change_func(data):
+    name, phone = create_data(data)
+    if name in contacts:
+        contacts[name] = phone
+        return f'You changed number to {phone} for {name}.'
+    return 'This contact does not exist. Use add command plz.'
 
 
-def phone_func(command, contacts):
-    new_data = command.split(' ')
-    print(contacts[new_data[1]])
+@input_error
+def phone_search_func(name):
+    if name.strip() not in contacts:
+        raise ValueError('This contact does not exist.')
+    return contacts.get(name.strip())
 
 
-def show_all_func(contacts):
-    return contacts
-
+@input_error
+def show_all_func():
+    all_contacts = ''
+    for key, value in contacts.items():
+        all_contacts += f'{key} : {value} \n'
+    return all_contacts
 
 def help_func():
     return '''Бот принимает команды:
@@ -89,13 +68,60 @@ def help_func():
                   -"good bye", "close", "exit" по любой из этих команд бот завершает свою роботу'''
 
 
-def bad_command_func():
-    raise TypeError
+commands = {
+    'hello': hello_func,
+    'exit': exit_func,
+    'close': exit_func,
+    'good bye': exit_func,
+    '.': exit_func,
+    'add': add_func,
+    'change': change_func,
+    'show all': show_all_func,
+    'phone': phone_search_func,
+    'help': help_func
+}
 
 
-contacts = {}
+def change_input(user_input):
+    new_input = user_input
+    data = ''
+    for key in commands:
+        if user_input.strip().lower().startswith(key):
+            new_input = key
+            data = user_input[len(new_input):]
+            break
+    if data:
+        return reaction_func(new_input)(data)
+    return reaction_func(new_input)()
+
+
+def reaction_func(reaction):
+    return commands.get(reaction, break_func)
+
+
+def create_data(data):
+    new_data = data.strip().split(" ")
+    name = new_data[0]
+    phone = new_data[1]
+    if name.isnumeric():
+        raise ValueError('Wrong name.')
+    if not phone.isnumeric():
+        raise ValueError('Wrong phone.')
+    return name, phone
+
+
+def break_func():
+    return 'Wrong input.'
+
+
+def main():
+    while True:
+        user_input = input('Enter command for bot: ')
+        result = change_input(user_input)
+        print(result)
+        if result == 'Good bye!':
+            break
 
 
 if __name__ == '__main__':
     main()
-
