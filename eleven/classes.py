@@ -90,10 +90,7 @@ class AdressBook(UserDict):
         return self.data
 
     def has_record(self, name):
-        if self.data.get(name):
-            return True
-        else:
-            return False
+        return name in self.data
 
     def get_record(self, name):
         return self.data.get(name)
