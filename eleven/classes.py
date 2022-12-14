@@ -49,16 +49,16 @@ class Record:
     def get_info(self):
         list_phones = ''
         for phone in self.phones:
-            list_phones += f'phone.value'
+            list_phones += phone.value
         return f'{self.name.value} : {list_phones[:-1]}'
 
     def add_phones(self, phone):
         self.phones.append(Phone(phone))
 
     def del_phone(self, phone):
-        for record in self.phones:
-            if record == phone:
-                self.phones.remove(record)
+        for phone_ in self.phones:
+            if phone_ == phone:
+                self.phones.remove(phone_)
                 return True
         return False
 
